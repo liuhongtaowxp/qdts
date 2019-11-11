@@ -1,10 +1,17 @@
 package com.istonesoft.qdts.resource;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationContext;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.istonesoft.qdts.cast.StringCastStrategyImpl;
 /**
  * 方法 
  * @author issuser
@@ -18,6 +25,11 @@ public class QdMethod {
 	//参数
 	private List<QdArg> argList;
 
+	public QdMethod() {
+		super();
+		this.argList = new ArrayList<QdArg>();
+	}
+
 	public QdMethod(String className, String methodName) {
 		super();
 		this.className = className;
@@ -25,14 +37,25 @@ public class QdMethod {
 		this.argList = new ArrayList<QdArg>();
 	}
 	
-	public void addArg(Class parameterType, Object arg) {
+	public QdMethod(String className, String methodName, List<QdArg> argList) {
+		super();
+		this.className = className;
+		this.methodName = methodName;
+		this.argList = argList;
+	}
+
+	public void addArg(String parameterType, Object arg) {
 		this.argList.add(new QdArg(parameterType, arg));
 	}
 	
 	public  void addArg(QdArg arg) {
 		this.argList.add(arg);
 	}
-	
+	/**
+	 * 拦截点转化为QdMethod
+	 * @param joinPoint
+	 * @return
+	 */
 	public static QdMethod createQdMethod(ProceedingJoinPoint joinPoint) {
 		MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
 		String methodName = methodSignature.getName();
@@ -42,11 +65,85 @@ public class QdMethod {
 		Object[] objs = joinPoint.getArgs();
 		int index = 0;
 		for (Object arg : objs) {
-			qdMethod.addArg(clzs[index++], arg);
+			qdMethod.addArg(clzs[index++].getName(), arg);
 		}
 		return qdMethod;
 	}
-
+	/**
+	 * json反序列化对象
+	 * @param json
+	 * @return
+	 */
+	public static QdMethod createQdMethodUseJson(String json) {
+		QdMethod m = new QdMethod();
+		JSONObject jsonObject = JSONObject.parseObject(json);
+		m.setClassName(jsonObject.getString("className"));
+		m.setMethodName(jsonObject.getString("methodName"));
+		JSONArray arr = jsonObject.getJSONArray("argList");
+		for(int i = 0; i < arr.size(); i++) {
+			String parameterType = arr.getJSONObject(i).getString("parameterType");
+			//转化为实际类型的值
+			Object arg = null;
+			try {
+				arg = StringCastStrategyImpl.castToVal(arr.getJSONObject(i).getString("arg"), parameterType);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			m.addArg(parameterType, arg);
+		}
+		return m;
+	}
+	/**
+	 * 执行方法
+	 * @param applicationContext
+	 */
+	public synchronized void invoke(ApplicationContext applicationContext) {
+		int endPos = className.indexOf("$$");
+		//获得实际的类名
+		if (endPos > 0) {
+			className = className.substring(0, endPos);
+		}
+		
+		try {
+			Class targetClass = Class.forName(className);
+			//得到bean
+			Object target = applicationContext.getBean(targetClass);
+			
+			List<QdArg> args = getArgList();
+			Class[] paramClzs = new Class[args.size()];
+			Object[] paramObjs = new Object[args.size()];
+			int index = 0;
+			for (QdArg arg : args) {
+				String paramClz = arg.getParameterType();
+				Class paramClass = StringCastStrategyImpl.castToClass(paramClz);
+				paramClzs[index] = paramClass;
+				paramObjs[index] = arg.getArg();
+				index++;
+			}
+			
+			try {
+				Method targetMethod = targetClass.getMethod(methodName, paramClzs);
+				
+				try {
+					targetMethod.invoke(target, paramObjs);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			}
+			
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public String getClassName() {
 		return className;
 	}

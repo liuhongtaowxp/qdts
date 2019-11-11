@@ -6,19 +6,19 @@ package com.istonesoft.qdts.resource;
  */
 public class QdArg {
 	//参数类型
-	private Class parameterType;
+	private String parameterType;
 	//参数值
 	private Object arg;
 	
-	public QdArg(Class parameterType, Object arg) {
+	public QdArg(String parameterType, Object arg) {
 		super();
 		this.parameterType = parameterType;
 		this.arg = arg;
 	}
-	public Class getParameterType() {
+	public String getParameterType() {
 		return parameterType;
 	}
-	public void setParameterType(Class parameterType) {
+	public void setParameterType(String parameterType) {
 		this.parameterType = parameterType;
 	}
 	public Object getArg() {
