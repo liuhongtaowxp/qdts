@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.istonesoft.qdts.connection.QdConnection;
+import com.istonesoft.qdts.context.QdConsumerContext;
 /**
  * jdbc执行模板
  * @author issuser
@@ -17,6 +18,45 @@ import com.istonesoft.qdts.connection.QdConnection;
  */
 @Component
 public class QdJdbcTemplate {
+	/**
+	 * 执行查询
+	 * @param conn
+	 * @param sql
+	 * @param params
+	 * @param handler
+	 * @return
+	 * @throws Exception
+	 */
+	public <T> T executeQuerySingle(Connection conn, String sql, Object[] params, RowHandler<T> handler) throws Exception {
+		PreparedStatement prepareStatement = null;
+		try {
+			conn.setReadOnly(true);
+			prepareStatement = conn.prepareStatement(sql);
+			int index = 0;
+			for (Object param : params) {
+				prepareStatement.setObject(++index, param);
+			}
+			ResultSet rs = prepareStatement.executeQuery();
+			while (rs.next()) {
+				return handler.handle(rs);
+			}
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			try {
+				if (prepareStatement != null) {
+					prepareStatement.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+				
+			} catch (SQLException e1) {
+				throw e1;
+			}
+		}
+		return null;
+	}
 	/**
 	 * 执行查询
 	 * @param conn
@@ -65,6 +105,7 @@ public class QdJdbcTemplate {
 	 * @throws Exception
 	 */
 	public void executeSql(Connection conn, String sql, Object[] params) throws Exception {
+		
 		PreparedStatement prepareStatement = null;
 		conn.setAutoCommit(false);
 		try {

@@ -7,6 +7,7 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
+import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.resource.NameThreadLocal;
 /**
  *  请求拦截器，携带groupId
@@ -18,7 +19,7 @@ public class GroupClientHttpRequestInterceptor implements ClientHttpRequestInter
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
 			throws IOException {
-		String groupId = (String)NameThreadLocal.get("qdGroupId");
+		String groupId = QdConsumerContext.getQdGroupId();
 		if (groupId != null) {
 			request.getHeaders().add("qdGroupId", groupId);
 		}

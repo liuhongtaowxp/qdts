@@ -6,8 +6,12 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+
 import com.istonesoft.qdts.connection.QdConsumerConnection;
 import com.istonesoft.qdts.connection.QdProviderConnection;
+import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.context.QdContext;
+import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.resource.NameThreadLocal;
 /**
  * connection切面，需截取connection
@@ -26,14 +30,15 @@ public class ConnectionAspect {
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
-		
-		if (NameThreadLocal.get("qdProvider") != null) {//调用者为提供方
+		if (QdContext.isRequiredNewConnection()) {//是否需要新的连接
+			return conn;
+		} else if (QdProviderContext.isProvider()) {//调用者为提供方
 			QdProviderConnection result = new QdProviderConnection(conn);
-			NameThreadLocal.put("qdConnection", result);
+			QdProviderContext.setQdConnection(result);
 			return result;
-		} else  if (NameThreadLocal.get("qdConsumer") != null) {//调用者为消费方
+		} else  if (QdConsumerContext.isConsumer()) {//调用者为消费方
 			QdConsumerConnection result = new QdConsumerConnection(conn);
-			NameThreadLocal.put("qdConnection", result);
+			QdConsumerContext.setQdConnection(result);
 			return result;
 		} else {
 			return conn;

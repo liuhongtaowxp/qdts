@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.resource.NameThreadLocal;
 import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterceptor;
 /**
@@ -49,7 +50,8 @@ public class QdConfig {
 					//提供方取得携带的 groupId
 					String qdGroupId = ((HttpServletRequest) request).getHeader("qdGroupId");
 					if (qdGroupId != null) {
-						NameThreadLocal.put("qdGroupId", qdGroupId);
+						//设置消费者端groupId
+						QdProviderContext.setQdGroupId(qdGroupId);
 					}
 				}
 				try {

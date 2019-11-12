@@ -1,4 +1,7 @@
 package com.istonesoft.qdts.resource;
+
+import com.alibaba.fastjson.JSON;
+
 /**
  * controller层的返回值，必须使用
  * @author issuser
@@ -15,6 +18,11 @@ public class QdResult {
 	public QdResult() {
 		super();
 	}
+	
+	public static QdResult createQdResultUseJson(String json) {
+		return JSON.parseObject(json, QdResult.class);
+	}
+	
 	public QdResult(Object result, String msg, String flag) {
 		super();
 		this.result = result;

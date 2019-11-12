@@ -19,7 +19,7 @@ public class QdConsumerConnection extends QdConnection {
 
 	public void realCommit(QdJdbcTemplate jdbcTemplate, Object result) throws SQLException {
 		try {
-			jdbcTemplate.executeSqlNoCommit(this, "update t_qd_consumer set status='SUCCESS' where group_id=?", new Object[] {NameThreadLocal.get("qdGroupId")});
+			jdbcTemplate.executeSqlNoCommit(this, "update t_qd_consumer set status='SUCCESS',invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {NameThreadLocal.get("qdGroupId")});
 			connection.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -32,7 +32,7 @@ public class QdConsumerConnection extends QdConnection {
 	
 	public void realRollback(QdJdbcTemplate jdbcTemplate, Connection conn, QdResult result) throws SQLException {
 		try {
-			jdbcTemplate.executeSql(conn, "update t_qd_consumer set exception=? where group_id=?", new Object[] {result.getMsg(), NameThreadLocal.get("qdGroupId")});
+			jdbcTemplate.executeSql(conn, "update t_qd_consumer set exception=?,invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {result.getMsg(), NameThreadLocal.get("qdGroupId")});
 			connection.rollback();
 		} catch (SQLException e1) {
 			e1.printStackTrace();

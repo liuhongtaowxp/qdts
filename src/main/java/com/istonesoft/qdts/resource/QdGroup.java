@@ -16,6 +16,10 @@ public class QdGroup {
 	//状态
 	private QdStatus status;
 	
+	public QdGroup() {
+		super();
+	}
+
 	public QdGroup(String groupId, QdMethod method, QdStatus status) {
 		super();
 		this.groupId = groupId;

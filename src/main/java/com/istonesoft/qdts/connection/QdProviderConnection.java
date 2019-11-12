@@ -20,7 +20,7 @@ public class QdProviderConnection extends QdConnection {
 
 	public void realCommit(QdJdbcTemplate jdbcTemplate, Object result) throws SQLException {
 		try {
-			jdbcTemplate.executeSqlNoCommit(this, "update t_qd_provider set status='SUCCESS', result=? where group_id=?", new Object[] {JSON.toJSONString(result), NameThreadLocal.get("qdGroupId")});
+			jdbcTemplate.executeSqlNoCommit(this, "update t_qd_provider set status='SUCCESS',invoke_count=invoke_count+1,update_time=now(), result=? where group_id=?", new Object[] {JSON.toJSONString(result), NameThreadLocal.get("qdGroupId")});
 			connection.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -33,7 +33,7 @@ public class QdProviderConnection extends QdConnection {
 	
 	public void realRollback(QdJdbcTemplate jdbcTemplate, Connection conn, QdResult result) throws SQLException {
 		try {
-			jdbcTemplate.executeSql(conn, "update t_qd_provider set exception=? where group_id=?", new Object[] {result.getMsg(), NameThreadLocal.get("qdGroupId")});
+			jdbcTemplate.executeSql(conn, "update t_qd_provider set exception=?,invoke_count=invoke_count+1,update_time=now()  where group_id=?", new Object[] {result.getMsg(), NameThreadLocal.get("qdGroupId")});
 			connection.rollback();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
