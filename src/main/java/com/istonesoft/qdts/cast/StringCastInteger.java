@@ -8,7 +8,7 @@ public class StringCastInteger implements StringCast {
 	}
 
 	@Override
-	public Class castToClass() {
+	public Class<?> castToClass() {
 		return Integer.class;
 	}
 

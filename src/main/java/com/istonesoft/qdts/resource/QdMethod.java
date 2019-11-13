@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.istonesoft.qdts.cast.StringCastStrategyImpl;
+import com.istonesoft.qdts.context.QdConsumerContext;
 /**
  * 方法 
  * @author issuser
@@ -61,7 +62,7 @@ public class QdMethod {
 		String methodName = methodSignature.getName();
 		String className = joinPoint.getTarget().getClass().getName();
 		QdMethod qdMethod = new QdMethod(className, methodName);
-		Class[] clzs = methodSignature.getParameterTypes();
+		Class<?>[] clzs = methodSignature.getParameterTypes();
 		Object[] objs = joinPoint.getArgs();
 		int index = 0;
 		for (Object arg : objs) {
@@ -103,42 +104,35 @@ public class QdMethod {
 		if (endPos > 0) {
 			className = className.substring(0, endPos);
 		}
-		
 		try {
-			Class targetClass = Class.forName(className);
+			Class<?> targetClass = Class.forName(className);
 			//得到bean
 			Object target = applicationContext.getBean(targetClass);
-			
 			List<QdArg> args = getArgList();
-			Class[] paramClzs = new Class[args.size()];
+			Class<?>[] paramClzs = new Class[args.size()];
 			Object[] paramObjs = new Object[args.size()];
 			int index = 0;
 			for (QdArg arg : args) {
 				String paramClz = arg.getParameterType();
-				Class paramClass = StringCastStrategyImpl.castToClass(paramClz);
+				Class<?> paramClass = StringCastStrategyImpl.castToClass(paramClz);
 				paramClzs[index] = paramClass;
 				paramObjs[index] = arg.getArg();
 				index++;
 			}
-			
 			try {
 				Method targetMethod = targetClass.getMethod(methodName, paramClzs);
-				
 				try {
 					targetMethod.invoke(target, paramObjs);
-				} catch (IllegalAccessException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
+				} finally {
+					QdConsumerContext.clear();
 				}
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			}
-			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}

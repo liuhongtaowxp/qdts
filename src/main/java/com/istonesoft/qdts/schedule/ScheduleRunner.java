@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.jdbc.RowHandler;
-import com.istonesoft.qdts.resource.NameThreadLocal;
 import com.istonesoft.qdts.resource.QdGroup;
 import com.istonesoft.qdts.resource.QdMethod;
 import com.istonesoft.qdts.resource.QdStatus;
@@ -35,32 +34,33 @@ public class ScheduleRunner implements ApplicationContextAware {
 	
 	@Scheduled(fixedDelay = 1000 * 5)
 	public void invokeNetWorkExceptionData() {
-		
 		try {
 			//扫描调用超时的数据,状态为prepare,并且没有exception信息的数据
-			List<Map<String, String>> list = getNetWorkExceptionData();
-			for (Map<String, String> dataMap : list) {
+			List<Map<String, String>> exceptionList = getNetWorkExceptionData();
+			for (Map<String, String> dataMap : exceptionList) {
 				//反序列化为QdMethod
 				QdMethod method = QdMethod.createQdMethodUseJson(dataMap.get("method"));
-				QdGroup group = newQdGroup(dataMap, method);
+				initQdGroup(dataMap, method);
 				//执行QdMethod
 				method.invoke(this.applicationContext);
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
+			QdConsumerContext.clear();
 			e.printStackTrace();
 		}
 		
 	}
-	
-	private QdGroup newQdGroup(Map<String, String> dataMap, QdMethod method) {
+	/**
+	 * 设置当前环境的QdGroup
+	 * @param dataMap
+	 * @param method
+	 */
+	private void initQdGroup(Map<String, String> dataMap, QdMethod method) {
 		QdGroup group = new QdGroup();
 		group.setGroupId(dataMap.get("groupId"));
 		group.setMethod(method);
 		group.setStatus(QdStatus.PREPARE);
 		QdConsumerContext.setQdGroup(group);
-		return group;
 	}
 	/**
 	 * 得到消费端调用时发生网络异常的数据
@@ -69,7 +69,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 	 * @throws SQLException
 	 */
 	private List<Map<String, String>> getNetWorkExceptionData() throws Exception, SQLException {
-		List<Map<String, String>> list = jdbcTemplate.executeQuery(ds.getConnection(), "select group_id, method from t_qd_consumer where status=? and exception is null", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
+		List<Map<String, String>> list = jdbcTemplate.executeQueryToList(ds, "select group_id, method from t_qd_consumer where status=?", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
 
 			public Map<String, String> handle(ResultSet rs) {
 				Map<String, String> map = new HashMap<String, String>();
@@ -79,6 +79,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 					map.put("method", rs.getString(2));
 					return map;
 				} catch (SQLException e) {
+					QdConsumerContext.clear();
 					e.printStackTrace();
 				}
 				return null;

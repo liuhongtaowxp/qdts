@@ -61,6 +61,4 @@ public class QdGroup {
 	public String toString() {
 		return "QdGroup [groupId=" + groupId + ", method=" + method + ", status=" + status + "]";
 	}
-	
-	
 }

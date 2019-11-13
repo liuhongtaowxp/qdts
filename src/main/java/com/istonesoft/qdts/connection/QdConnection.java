@@ -19,10 +19,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import javax.sql.DataSource;
+
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.resource.QdResult;
 /**
- * 抽象Connection
+ * 抽象层Connection
  * @author issuser
  *
  */
@@ -44,15 +46,13 @@ public abstract class QdConnection implements Connection {
 		}
 	}
 	
-	public abstract void realCommit(QdJdbcTemplate jdbcTemplate, Object result) throws SQLException;
+	public abstract void realCommit(QdJdbcTemplate jdbcTemplate, QdResult result) throws SQLException;
 	
-	public abstract void realRollback(QdJdbcTemplate jdbcTemplate, Connection conn, QdResult result) throws SQLException;
-	
+	public abstract void realRollback(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException;
 	
 	@Override
 	public void rollback() throws SQLException {
 		//controller,service不同一个事务，有风险,先不要rollback,等controller层修改完结果后rollback
-		
 	}
 	
 	@Override
@@ -63,7 +63,6 @@ public abstract class QdConnection implements Connection {
 	@Override
 	public void commit() throws SQLException {
 		//controller,service同一个事务,先不要commit,等controller层修改完结果后commit
-		
 	}
 
 	@Override

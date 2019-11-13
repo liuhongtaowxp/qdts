@@ -5,7 +5,11 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.istonesoft.qdts.cache.ClassCache;
-
+/**
+ * string转化策略
+ * @author issuser
+ *
+ */
 public class StringCastStrategyImpl {
 
 	private static Map<String, StringCast> maps = new HashMap<String, StringCast>();
@@ -27,7 +31,7 @@ public class StringCastStrategyImpl {
 		}
 	}
 	
-	public static Class castToClass(String parameterType) throws ClassNotFoundException {
+	public static Class<?> castToClass(String parameterType) throws ClassNotFoundException {
 		StringCast stringCast = maps.get(parameterType);
 		if (stringCast == null) {
 			return ClassCache.getClass(parameterType);
@@ -35,4 +39,5 @@ public class StringCastStrategyImpl {
 			return stringCast.castToClass();
 		}
 	}
+	
 }

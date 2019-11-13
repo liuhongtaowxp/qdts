@@ -10,4 +10,5 @@ public class QdException extends Exception {
 	public QdException(String msg) {
 		super(msg);
 	}
+	
 }

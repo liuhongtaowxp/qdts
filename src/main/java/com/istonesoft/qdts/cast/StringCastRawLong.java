@@ -8,7 +8,7 @@ public class StringCastRawLong implements StringCast {
 	}
 
 	@Override
-	public Class castToClass() {
+	public Class<?> castToClass() {
 		return long.class;
 	}
 

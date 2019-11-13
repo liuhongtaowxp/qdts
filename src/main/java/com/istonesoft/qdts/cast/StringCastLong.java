@@ -8,7 +8,7 @@ public class StringCastLong implements StringCast {
 	}
 
 	@Override
-	public Class castToClass() {
+	public Class<?> castToClass() {
 		return Long.class;
 	}
 

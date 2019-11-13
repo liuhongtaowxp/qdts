@@ -7,10 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import javax.sql.DataSource;
 
+import org.springframework.stereotype.Component;
 import com.istonesoft.qdts.connection.QdConnection;
-import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.context.QdContext;
 /**
  * jdbc执行模板
  * @author issuser
@@ -27,7 +28,9 @@ public class QdJdbcTemplate {
 	 * @return
 	 * @throws Exception
 	 */
-	public <T> T executeQuerySingle(Connection conn, String sql, Object[] params, RowHandler<T> handler) throws Exception {
+	public <T> T executeQueryToEntity(DataSource ds, String sql, Object[] params, RowHandler<T> handler) throws Exception {
+		QdContext.requiredNewConnection();
+		Connection conn = ds.getConnection();
 		PreparedStatement prepareStatement = null;
 		try {
 			conn.setReadOnly(true);
@@ -43,6 +46,7 @@ public class QdJdbcTemplate {
 		} catch (SQLException e) {
 			throw e;
 		} finally {
+			QdContext.cleanRequiredNewConnection();
 			try {
 				if (prepareStatement != null) {
 					prepareStatement.close();
@@ -66,7 +70,9 @@ public class QdJdbcTemplate {
 	 * @return
 	 * @throws Exception
 	 */
-	public <T> List<T> executeQuery(Connection conn, String sql, Object[] params, RowHandler<T> handler) throws Exception {
+	public <T> List<T> executeQueryToList(DataSource ds, String sql, Object[] params, RowHandler<T> handler) throws Exception {
+		QdContext.requiredNewConnection();
+		Connection conn = ds.getConnection();
 		List<T> list = new ArrayList<T>();
 		PreparedStatement prepareStatement = null;
 		try {
@@ -84,6 +90,7 @@ public class QdJdbcTemplate {
 		} catch (SQLException e) {
 			throw e;
 		} finally {
+			QdContext.cleanRequiredNewConnection();
 			try {
 				if (prepareStatement != null) {
 					prepareStatement.close();
@@ -104,8 +111,9 @@ public class QdJdbcTemplate {
 	 * @param params
 	 * @throws Exception
 	 */
-	public void executeSql(Connection conn, String sql, Object[] params) throws Exception {
-		
+	public void executeSql(DataSource ds, String sql, Object[] params) throws Exception {
+		QdContext.requiredNewConnection();
+		Connection conn = ds.getConnection();
 		PreparedStatement prepareStatement = null;
 		conn.setAutoCommit(false);
 		try {
@@ -120,6 +128,7 @@ public class QdJdbcTemplate {
 			conn.rollback();
 			throw e;
 		} finally {
+			QdContext.cleanRequiredNewConnection();
 			try {
 				if (prepareStatement != null) {
 					prepareStatement.close();
@@ -163,6 +172,6 @@ public class QdJdbcTemplate {
 				throw e1;
 			}
 		}
-		
 	}
+	
 }

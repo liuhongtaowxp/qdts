@@ -17,6 +17,6 @@ public interface StringCast {
 	 * class字符串转化为class
 	 * @return
 	 */
-	public Class castToClass();
+	public Class<?> castToClass();
 	
 }

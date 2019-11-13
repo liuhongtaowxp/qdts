@@ -8,7 +8,7 @@ public class StringCastRawDouble implements StringCast {
 	}
 
 	@Override
-	public Class castToClass() {
+	public Class<?> castToClass() {
 		return double.class;
 	}
 

@@ -7,12 +7,13 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import com.istonesoft.qdts.connection.QdConnection;
 import com.istonesoft.qdts.connection.QdConsumerConnection;
 import com.istonesoft.qdts.connection.QdProviderConnection;
 import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContext;
 import com.istonesoft.qdts.context.QdProviderContext;
-import com.istonesoft.qdts.resource.NameThreadLocal;
+import com.zaxxer.hikari.pool.HikariProxyConnection;
 /**
  * connection切面，需截取connection
  * @author issuser
@@ -21,7 +22,11 @@ import com.istonesoft.qdts.resource.NameThreadLocal;
 @Aspect
 @Component
 public class ConnectionAspect {
-
+	/**
+	 * 拦截数据源
+	 * @param joinPoint
+	 * @return
+	 */
 	@Around("execution(* javax.sql.DataSource.getConnection(..))")
 	public Connection around(ProceedingJoinPoint joinPoint) {
 		Connection conn = null;
@@ -33,17 +38,16 @@ public class ConnectionAspect {
 		if (QdContext.isRequiredNewConnection()) {//是否需要新的连接
 			return conn;
 		} else if (QdProviderContext.isProvider()) {//调用者为提供方
-			QdProviderConnection result = new QdProviderConnection(conn);
-			QdProviderContext.setQdConnection(result);
+			QdConnection result = new QdProviderConnection(conn);
+			QdContext.setQdConnection(result);
 			return result;
 		} else  if (QdConsumerContext.isConsumer()) {//调用者为消费方
-			QdConsumerConnection result = new QdConsumerConnection(conn);
-			QdConsumerContext.setQdConnection(result);
+			QdConnection result = new QdConsumerConnection(conn);
+			QdContext.setQdConnection(result);
 			return result;
 		} else {
 			return conn;
 		}
-		
 	}
 	
 }

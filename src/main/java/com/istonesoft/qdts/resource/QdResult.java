@@ -51,6 +51,4 @@ public class QdResult {
 	public String toString() {
 		return "QdResult [result=" + result + ", msg=" + msg + ", flag=" + flag + "]";
 	}
-	
-	
 }

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import com.istonesoft.qdts.context.QdProviderContext;
-import com.istonesoft.qdts.resource.NameThreadLocal;
+import com.istonesoft.qdts.resource.QdNameThreadLocal;
 import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterceptor;
 /**
  * 配置
@@ -68,4 +68,5 @@ public class QdConfig {
 			}
 		};
 	}
+	
 }
