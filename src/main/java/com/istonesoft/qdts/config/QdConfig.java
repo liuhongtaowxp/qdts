@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.istonesoft.qdts.context.QdProviderContext;
-import com.istonesoft.qdts.resource.QdNameThreadLocal;
 import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterceptor;
 /**
  * 配置
@@ -30,7 +30,10 @@ public class QdConfig {
 	 */
 	@Bean
 	public RestTemplate getRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate();
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();  
+		requestFactory.setConnectTimeout(3000);// 设置超时  
+		requestFactory.setReadTimeout(3000);  
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
 		//header携带groupId
 		restTemplate.getInterceptors().add(new GroupClientHttpRequestInterceptor());
 		return restTemplate;

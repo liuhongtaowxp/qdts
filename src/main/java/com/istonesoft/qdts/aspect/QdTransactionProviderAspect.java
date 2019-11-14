@@ -8,8 +8,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-
-import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.jdbc.RowHandler;
 import com.istonesoft.qdts.resource.QdResult;

@@ -1,6 +1,5 @@
 package com.istonesoft.qdts.resource;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +60,11 @@ public class QdMethod {
 		MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
 		String methodName = methodSignature.getName();
 		String className = joinPoint.getTarget().getClass().getName();
+		int endPos = className.indexOf("$$");
+		//获得实际的类名
+		if (endPos > 0) {
+			className = className.substring(0, endPos);
+		}
 		QdMethod qdMethod = new QdMethod(className, methodName);
 		Class<?>[] clzs = methodSignature.getParameterTypes();
 		Object[] objs = joinPoint.getArgs();

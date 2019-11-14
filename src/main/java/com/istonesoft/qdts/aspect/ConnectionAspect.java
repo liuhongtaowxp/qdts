@@ -13,7 +13,6 @@ import com.istonesoft.qdts.connection.QdProviderConnection;
 import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContext;
 import com.istonesoft.qdts.context.QdProviderContext;
-import com.zaxxer.hikari.pool.HikariProxyConnection;
 /**
  * connection切面，需截取connection
  * @author issuser

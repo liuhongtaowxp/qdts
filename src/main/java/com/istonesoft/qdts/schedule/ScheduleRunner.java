@@ -32,7 +32,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 	
 	private ApplicationContext applicationContext;
 	
-	@Scheduled(fixedDelay = 1000 * 5)
+	@Scheduled(fixedDelay = 1000 * 3600)
 	public void invokeNetWorkExceptionData() {
 		try {
 			//扫描调用超时的数据,状态为prepare,并且没有exception信息的数据
@@ -69,7 +69,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 	 * @throws SQLException
 	 */
 	private List<Map<String, String>> getNetWorkExceptionData() throws Exception, SQLException {
-		List<Map<String, String>> list = jdbcTemplate.executeQueryToList(ds, "select group_id, method from t_qd_consumer where status=?", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
+		List<Map<String, String>> list = jdbcTemplate.executeQueryToList(ds, "select group_id, method from t_qd_consumer where status=? and exception='netConnectException'", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
 
 			public Map<String, String> handle(ResultSet rs) {
 				Map<String, String> map = new HashMap<String, String>();

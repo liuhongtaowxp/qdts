@@ -24,7 +24,7 @@ public abstract class QdTransProcessor {
 		try {
 			result = (QdResult)joinPoint.proceed();
 		} catch (Throwable t) {//网络异常
-			result = new QdResult(null, t.getMessage(), "0");
+			result = new QdResult(null, "netConnectException", "0");
 		}
 		if (result.getFlag().equals("1")) {//执行结果为成功
 			//提交事务
