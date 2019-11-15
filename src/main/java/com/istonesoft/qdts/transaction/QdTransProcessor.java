@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContext;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.resource.QdResult;
@@ -27,7 +28,6 @@ public abstract class QdTransProcessor {
 		} catch (Throwable t) {//网络异常
 			obj = new QdResult(null, "netConnectException", "0");
 		}
-		
 		if (obj instanceof QdResult) {
 			result = (QdResult)obj;
 			if (QdContext.getQdConnection() != null) {//service层开启过事务
@@ -38,15 +38,17 @@ public abstract class QdTransProcessor {
 					//回滚事务
 					QdContext.getQdConnection().realRollback(jdbcTemplate, ds, result);
 				}
-			} else {
-				jdbcTemplate.executeSql(ds, "delete from t_qd_consumer where group_id=?", new Object[]{QdContext.getQdGroupId()});
+			} else {//无事务
+				if (QdConsumerContext.isConsumer()) {
+					jdbcTemplate.executeSql(ds, "delete from t_qd_consumer where group_id=?", new Object[]{QdContext.getQdGroupId()});
+				} else {
+					jdbcTemplate.executeSql(ds, "delete from t_qd_provider where group_id=?", new Object[]{QdContext.getQdGroupId()});
+				}
 			}
 			return result;
-		} else {
+		} else {//返回类型不是QdResult
 			throw new Exception("controller result must be QdResult instance");
 		}
-		
-		
 	}
 	
 }
