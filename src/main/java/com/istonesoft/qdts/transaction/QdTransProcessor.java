@@ -21,19 +21,31 @@ public abstract class QdTransProcessor {
 	public QdResult invoke(ProceedingJoinPoint joinPoint) throws Throwable {
 		//执行controller逻辑
 		QdResult result = null;
+		Object obj = joinPoint.proceed();
 		try {
-			result = (QdResult)joinPoint.proceed();
+			obj = joinPoint.proceed();
 		} catch (Throwable t) {//网络异常
-			result = new QdResult(null, "netConnectException", "0");
+			obj = new QdResult(null, "netConnectException", "0");
 		}
-		if (result.getFlag().equals("1")) {//执行结果为成功
-			//提交事务
-			QdContext.getQdConnection().realCommit(jdbcTemplate, result);
+		
+		if (obj instanceof QdResult) {
+			result = (QdResult)obj;
+			if (QdContext.getQdConnection() != null) {//service层开启过事务
+				if (result.getFlag().equals("1")) {//执行结果为成功
+					//提交事务
+					QdContext.getQdConnection().realCommit(jdbcTemplate, result);
+				} else {
+					//回滚事务
+					QdContext.getQdConnection().realRollback(jdbcTemplate, ds, result);
+				}
+			} else {
+				jdbcTemplate.executeSql(ds, "delete from t_qd_consumer where group_id=?", new Object[]{QdContext.getQdGroupId()});
+			}
+			return result;
 		} else {
-			//回滚事务
-			QdContext.getQdConnection().realRollback(jdbcTemplate, ds, result);
+			throw new Exception("controller result must be QdResult instance");
 		}
-		return result;
+		
 		
 	}
 	
