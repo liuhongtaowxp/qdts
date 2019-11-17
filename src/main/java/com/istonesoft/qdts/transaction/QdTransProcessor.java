@@ -4,8 +4,10 @@ import javax.sql.DataSource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.fastjson.JSON;
 import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContext;
+import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.resource.QdResult;
 /**
@@ -39,10 +41,18 @@ public abstract class QdTransProcessor {
 					QdContext.getQdConnection().realRollback(jdbcTemplate, ds, result);
 				}
 			} else {//无事务
-				if (QdConsumerContext.isConsumer()) {
-					jdbcTemplate.executeSql(ds, "delete from t_qd_consumer where group_id=?", new Object[]{QdContext.getQdGroupId()});
+				if (result.getFlag().equals("1")) {//执行成功
+					if (QdConsumerContext.isConsumer()) {
+						jdbcTemplate.executeSql(ds, "update t_qd_consumer set status='SUCCESS',invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {QdConsumerContext.getQdGroupId()});
+					} else {
+						jdbcTemplate.executeSql(ds, "update t_qd_provider set status='SUCCESS',invoke_count=invoke_count+1,update_time=now(), result=? where group_id=?", new Object[] {JSON.toJSONString(result), QdProviderContext.getQdGroupId()});
+					}
 				} else {
-					jdbcTemplate.executeSql(ds, "delete from t_qd_provider where group_id=?", new Object[]{QdContext.getQdGroupId()});
+					if (QdConsumerContext.isConsumer()) {
+						jdbcTemplate.executeSql(ds, "update t_qd_consumer set exception=?,invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {result.getMsg(), QdConsumerContext.getQdGroupId()});
+					} else {
+						jdbcTemplate.executeSql(ds, "update t_qd_provider set exception=?,invoke_count=invoke_count+1,update_time=now()  where group_id=?", new Object[] {result.getMsg(), QdProviderContext.getQdGroupId()});
+					}
 				}
 			}
 			return result;
