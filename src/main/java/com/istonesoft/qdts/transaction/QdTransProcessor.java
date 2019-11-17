@@ -35,10 +35,10 @@ public abstract class QdTransProcessor {
 			if (QdContext.getQdConnection() != null) {//service层开启过事务
 				if (result.getFlag().equals("1")) {//执行结果为成功
 					//提交事务
-					QdContext.getQdConnection().realCommit(jdbcTemplate, result);
+					QdContext.getQdConnection().successHandle(jdbcTemplate, ds, result);
 				} else {
 					//回滚事务
-					QdContext.getQdConnection().realRollback(jdbcTemplate, ds, result);
+					QdContext.getQdConnection().failHandle(jdbcTemplate, ds, result);
 				}
 			} else {//无事务
 				if (result.getFlag().equals("1")) {//执行成功

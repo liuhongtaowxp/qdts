@@ -19,7 +19,7 @@ public class QdConsumerConnection extends QdConnection {
 		super(connection);
 	}
 
-	public void realCommit(QdJdbcTemplate jdbcTemplate, QdResult result) throws SQLException {
+	public void successHandle(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException {
 		try {
 			jdbcTemplate.executeSqlNoCommit(this, "update t_qd_consumer set status='SUCCESS',invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {QdConsumerContext.getQdGroupId()});
 			connection.commit();
@@ -30,7 +30,7 @@ public class QdConsumerConnection extends QdConnection {
 		}
 	}
 	
-	public void realRollback(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException {
+	public void failHandle(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException {
 		try {
 			jdbcTemplate.executeSql(ds, "update t_qd_consumer set exception=?,invoke_count=invoke_count+1,update_time=now() where group_id=?", new Object[] {result.getMsg(), QdConsumerContext.getQdGroupId()});
 			connection.rollback();

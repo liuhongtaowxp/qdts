@@ -46,9 +46,9 @@ public abstract class QdConnection implements Connection {
 		}
 	}
 	
-	public abstract void realCommit(QdJdbcTemplate jdbcTemplate, QdResult result) throws SQLException;
+	public abstract void successHandle(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException;
 	
-	public abstract void realRollback(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException;
+	public abstract void failHandle(QdJdbcTemplate jdbcTemplate, DataSource ds, QdResult result) throws SQLException;
 	
 	@Override
 	public void rollback() throws SQLException {
