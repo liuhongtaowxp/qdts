@@ -50,7 +50,6 @@ public class QdTransactionConsumerAspect {
 		//调用业务逻辑
 		QdResult result = proceedingJoinPointHandler.invoke(joinPoint);
 		//清理当前线程的变量
-		//QdConsumerContext.clear();
 		ctx.clear();
 		return result;
 	}

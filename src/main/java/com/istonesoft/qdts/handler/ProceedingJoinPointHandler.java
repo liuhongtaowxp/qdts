@@ -24,13 +24,11 @@ public class ProceedingJoinPointHandler {
 		//执行controller逻辑
 		QdResult result = null;
 		Object obj = joinPoint.proceed();
-		try {
-			obj = joinPoint.proceed();
-		} catch (Throwable t) {//网络异常
-			obj = new QdResult(null, "netConnectException", "0");
-		}
 		if (obj instanceof QdResult) {
 			result = (QdResult)obj;
+			if (result.getMsg() != null && result.getMsg().startsWith("I/O error on GET request for")) {
+				result.setMsg("netConnectException");
+			}
 			if (result.getFlag().equals("1")) {
 				QdContextHolder.getQdContext().getProceedingJoinPointResultHandler().successHandle(jdbcTemplate, ds, result);
 			} else {
