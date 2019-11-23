@@ -1,7 +1,10 @@
 package com.istonesoft.qdts.handler;
 import javax.sql.DataSource;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.istonesoft.qdts.context.QdContextHolder;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.resource.QdResult;
@@ -10,11 +13,12 @@ import com.istonesoft.qdts.resource.QdResult;
  * @author issuser
  *
  */
-public abstract class ProceedingJoinPointHandler {
+@Component
+public class ProceedingJoinPointHandler {
 	@Autowired
-	protected DataSource ds;
+	private DataSource ds;
 	@Autowired
-	protected QdJdbcTemplate jdbcTemplate;
+	private QdJdbcTemplate jdbcTemplate;
 	
 	public QdResult invoke(ProceedingJoinPoint joinPoint) throws Throwable {
 		//执行controller逻辑

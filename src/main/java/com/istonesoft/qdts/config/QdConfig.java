@@ -10,12 +10,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.istonesoft.qdts.context.QdContextHolder;
-import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterceptor;
 /**
  * 配置
@@ -23,6 +23,7 @@ import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterc
  *
  */
 @Configuration
+@ComponentScan("com.istonesoft.qdts")
 public class QdConfig {
 	
 	/**

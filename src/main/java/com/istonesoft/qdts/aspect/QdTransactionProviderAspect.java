@@ -19,9 +19,11 @@ import com.istonesoft.qdts.resource.QdResult;
  */
 @Aspect
 @Component
-public class QdTransactionProviderAspect extends ProceedingJoinPointHandler {
+public class QdTransactionProviderAspect {
 	@Autowired
 	private QdProviderDao dao;
+	@Autowired
+	private ProceedingJoinPointHandler proceedingJoinPointHandler;
 	
 	@Around("@annotation(com.istonesoft.qdts.annotation.QdTransactionProvider)")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -36,13 +38,13 @@ public class QdTransactionProviderAspect extends ProceedingJoinPointHandler {
 		if (invokeCount <= 0) {
 			dao.insertProviderEntity(qdGroupId);
 			//调用controller逻辑
-			result = this.invoke(joinPoint);
+			result = proceedingJoinPointHandler.invoke(joinPoint);
 		} else {//重复执行
 			//获取曾经成功执行过的返回值
 			String iResult = dao.getSuccessResult(qdGroupId);
 			if (iResult == null) {//没有成功执行过
 				//调用controller逻辑
-				result = this.invoke(joinPoint);
+				result = proceedingJoinPointHandler.invoke(joinPoint);
 			} else {//有成功执行过
 				result = QdResult.createQdResultUseJson(iResult);
 			}

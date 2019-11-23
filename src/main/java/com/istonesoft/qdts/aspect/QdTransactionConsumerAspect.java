@@ -20,9 +20,11 @@ import com.istonesoft.qdts.resource.QdResult;
  */
 @Aspect
 @Component
-public class QdTransactionConsumerAspect extends ProceedingJoinPointHandler {
+public class QdTransactionConsumerAspect {
 	@Autowired
 	private QdConsumerDao qdConsumerDao;
+	@Autowired
+	private ProceedingJoinPointHandler proceedingJoinPointHandler;
 	
 	@Around("@annotation(com.istonesoft.qdts.annotation.QdTransactionConsumer)")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -42,13 +44,13 @@ public class QdTransactionConsumerAspect extends ProceedingJoinPointHandler {
 				qdGroup.setGroupId(dbGroupId);
 			} else {
 				//初始化，先插入t_qd_consumer表，状态设置为prepare,并且commit
-				qdConsumerDao.insertConsumerEntity(qdGroup.getGroupId(), methodString, qdGroup.getStatus().toString());
+				qdConsumerDao.insertConsumerEntity(qdGroup.getGroupId(), methodString, qdGroup.getStatus().toString(), qdGroup.getDesc());
 			}
 		}
 		//设置当前线程的groupId
 		ctx.setQdGroupId(qdGroup.getGroupId());
 		//调用业务逻辑
-		QdResult result = this.invoke(joinPoint);
+		QdResult result = proceedingJoinPointHandler.invoke(joinPoint);
 		//清理当前线程的变量
 		//QdConsumerContext.clear();
 		ctx.clear();

@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.istonesoft.qdts.annotation.QdTransactionConsumer;
 import com.istonesoft.qdts.cast.StringCastStrategyImpl;
 import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContextHolder;
@@ -85,12 +86,13 @@ public class QdMethod {
 		JSONObject jsonObject = JSONObject.parseObject(json);
 		m.setClassName(jsonObject.getString("className"));
 		m.setMethodName(jsonObject.getString("methodName"));
+		//参数值集合
 		JSONArray arr = jsonObject.getJSONArray("argList");
 		for(int i = 0; i < arr.size(); i++) {
 			String parameterType = arr.getJSONObject(i).getString("parameterType");
 			//转化为实际类型的值
 			Object arg = null;
-			try {
+			try {//字符串转实际值
 				arg = StringCastStrategyImpl.castToVal(arr.getJSONObject(i).getString("arg"), parameterType);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -113,14 +115,17 @@ public class QdMethod {
 			Class<?> targetClass = Class.forName(className);
 			//得到bean
 			Object target = applicationContext.getBean(targetClass);
+			//得到参数集合
 			List<QdArg> args = getArgList();
 			Class<?>[] paramClzs = new Class[args.size()];
 			Object[] paramObjs = new Object[args.size()];
 			int index = 0;
 			for (QdArg arg : args) {
+				//参数class字符串
 				String paramClz = arg.getParameterType();
 				Class<?> paramClass = StringCastStrategyImpl.castToClass(paramClz);
 				paramClzs[index] = paramClass;
+				//参数值
 				paramObjs[index] = arg.getArg();
 				index++;
 			}

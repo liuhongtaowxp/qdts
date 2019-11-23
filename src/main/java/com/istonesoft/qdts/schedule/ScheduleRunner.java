@@ -70,7 +70,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 	 * @throws SQLException
 	 */
 	private List<Map<String, String>> getNetWorkExceptionData() throws Exception, SQLException {
-		List<Map<String, String>> list = jdbcTemplate.selectList(ds, "select group_id, method from t_qd_consumer where status=? and exception='netConnectException'", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
+		List<Map<String, String>> list = jdbcTemplate.selectList(ds, "select group_id, method from t_qd_consumer where status=? and (exception='netConnectException' or exception is null)", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
 
 			public Map<String, String> handle(ResultSet rs) {
 				Map<String, String> map = new HashMap<String, String>();

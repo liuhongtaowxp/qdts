@@ -6,8 +6,6 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-
-import com.istonesoft.qdts.context.QdConsumerContext;
 import com.istonesoft.qdts.context.QdContextHolder;
 /**
  *  请求拦截器，携带groupId

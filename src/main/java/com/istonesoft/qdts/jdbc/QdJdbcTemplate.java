@@ -1,9 +1,7 @@
 package com.istonesoft.qdts.jdbc;
 
 import java.util.List;
-
 import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.istonesoft.qdts.connection.QdServiceConnection;
 import com.istonesoft.qdts.context.QdContextHolder;
@@ -17,7 +15,6 @@ import com.istonesoft.qdts.context.State;
 public class QdJdbcTemplate extends AbstractJdbcTemplate {
 	
 	private JdbcTemplate JdbcTemplate = new JdbcTemplate();
-	
 	
 	@Override
 	public <T> T selectOne(DataSource ds, String sql, Object[] params,

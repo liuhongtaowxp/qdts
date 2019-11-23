@@ -3,6 +3,9 @@ package com.istonesoft.qdts.resource;
 import java.util.UUID;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+
+import com.istonesoft.qdts.annotation.QdTransactionConsumer;
 /**
  * 事务组
  * @author issuser
@@ -15,22 +18,30 @@ public class QdGroup {
 	private QdMethod method;
 	//状态
 	private QdStatus status;
+	//描述
+	private String desc;
 	
 	public QdGroup() {
 		super();
 	}
 
-	public QdGroup(String groupId, QdMethod method, QdStatus status) {
+	public QdGroup(String groupId, QdMethod method, QdStatus status, String desc) {
 		super();
 		this.groupId = groupId;
 		this.method = method;
 		this.status = status;
+		this.desc = desc;
 	}
 
 	public static QdGroup newQdGroup(ProceedingJoinPoint joinPoint) {
 		String groupId = UUID.randomUUID().toString().replaceAll("-","");
 		QdMethod method = QdMethod.createQdMethod(joinPoint);
-		return new QdGroup(groupId, method, QdStatus.PREPARE);
+		return new QdGroup(groupId, method, QdStatus.PREPARE, getDesc(joinPoint));
+	}
+
+	private static String getDesc(ProceedingJoinPoint joinPoint) {
+		MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+		return methodSignature.getMethod().getAnnotation(QdTransactionConsumer.class).desc();
 	}
 
 	public String getGroupId() {
@@ -55,6 +66,14 @@ public class QdGroup {
 
 	public void setStatus(QdStatus status) {
 		this.status = status;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 
 	@Override

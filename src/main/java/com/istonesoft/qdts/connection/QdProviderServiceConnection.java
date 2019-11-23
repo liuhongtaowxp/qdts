@@ -7,7 +7,6 @@ import javax.sql.DataSource;
 
 import com.alibaba.fastjson.JSON;
 import com.istonesoft.qdts.context.QdContextHolder;
-import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.resource.QdResult;
 /**

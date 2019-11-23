@@ -8,8 +8,11 @@ CREATE TABLE `t_qd_consumer` (
   `exception` varchar(4000) DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   `invoke_count` int(11) DEFAULT NULL,
+  `business_desc` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
 
 -- ----------------------------
 -- Records of t_qd_consumer

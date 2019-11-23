@@ -13,7 +13,7 @@ public abstract class QdContext {
 	protected String qdGroupId;
 	//service层connection
 	protected QdServiceConnection qdConnection;
-	
+	//controller层所处的事务状态
 	protected State state = State.SERVICE;
 
 	public String getQdGroupId() {
@@ -38,7 +38,7 @@ public abstract class QdContext {
 	public void setState(State state) {
 		this.state = state;
 	}
-
+	//是否为消费者方
 	public abstract boolean isConsumerContxt();
 	
 	public abstract boolean isProviderContxt();

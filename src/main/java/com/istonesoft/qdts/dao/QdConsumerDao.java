@@ -34,10 +34,10 @@ public class QdConsumerDao {
 		return dbGroupId;
 	}
 	
-	public void insertConsumerEntity(String groupId, String methodString, String status) throws Exception {
+	public void insertConsumerEntity(String groupId, String methodString, String status, String desc) throws Exception {
 		
-		jdbcTemplate.executeImmediateCommit(ds, "insert into t_qd_consumer(group_id,method,status,exception,update_time,invoke_count) values(?,?,?,?,?,?)", new Object[] {
-				groupId, methodString,status,null,new Date(),0	
+		jdbcTemplate.executeImmediateCommit(ds, "insert into t_qd_consumer(group_id,method,status,exception,update_time,invoke_count,business_desc) values(?,?,?,?,?,?,?)", new Object[] {
+				groupId, methodString,status,null,new Date(),0,desc	
 		});
 		
 	}
