@@ -36,10 +36,7 @@ public class ConnectionAspect {
 		}
 		//得到当前环境
 		QdContext ctx = QdContextHolder.getQdContext();
-		if (ctx == null) {
-			return conn;
-		}
-		if (ctx.getState() == State.NOSERVICE) {//不是service层
+		if (ctx == null || ctx.getState() == State.NOSERVICE) {
 			return conn;
 		} else {
 			QdServiceConnection result = initQdServiceConnection(conn, ctx);
