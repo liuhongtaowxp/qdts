@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.context.QdContextHolder;
 import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
 import com.istonesoft.qdts.jdbc.RowHandler;
 import com.istonesoft.qdts.resource.QdGroup;
@@ -45,7 +46,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 				method.invoke(this.applicationContext);
 			}
 		} catch (Exception e) {
-			QdConsumerContext.clear();
+			QdContextHolder.getQdContext().clear();
 			e.printStackTrace();
 		}
 		
@@ -60,7 +61,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 		group.setGroupId(dataMap.get("groupId"));
 		group.setMethod(method);
 		group.setStatus(QdStatus.PREPARE);
-		QdConsumerContext.setQdGroup(group);
+		((QdConsumerContext)QdContextHolder.getQdContext(true)).setQdGroup(group);
 	}
 	/**
 	 * 得到消费端调用时发生网络异常的数据
@@ -69,7 +70,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 	 * @throws SQLException
 	 */
 	private List<Map<String, String>> getNetWorkExceptionData() throws Exception, SQLException {
-		List<Map<String, String>> list = jdbcTemplate.executeQueryToList(ds, "select group_id, method from t_qd_consumer where status=? and exception='netConnectException'", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
+		List<Map<String, String>> list = jdbcTemplate.selectList(ds, "select group_id, method from t_qd_consumer where status=? and exception='netConnectException'", new Object[] {"PREPARE"}, new RowHandler<Map<String, String>>() {
 
 			public Map<String, String> handle(ResultSet rs) {
 				Map<String, String> map = new HashMap<String, String>();
@@ -79,7 +80,7 @@ public class ScheduleRunner implements ApplicationContextAware {
 					map.put("method", rs.getString(2));
 					return map;
 				} catch (SQLException e) {
-					QdConsumerContext.clear();
+					QdContextHolder.getQdContext().clear();
 					e.printStackTrace();
 				}
 				return null;

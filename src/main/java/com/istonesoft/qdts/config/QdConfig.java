@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import com.istonesoft.qdts.context.QdContextHolder;
 import com.istonesoft.qdts.context.QdProviderContext;
 import com.istonesoft.qdts.restTemplate.interceptor.GroupClientHttpRequestInterceptor;
 /**
@@ -54,7 +55,7 @@ public class QdConfig {
 					String qdGroupId = ((HttpServletRequest) request).getHeader("qdGroupId");
 					if (qdGroupId != null) {
 						//设置消费者端groupId
-						QdProviderContext.setQdGroupId(qdGroupId);
+						QdContextHolder.getQdContext(false).setQdGroupId(qdGroupId);
 					}
 				}
 				try {

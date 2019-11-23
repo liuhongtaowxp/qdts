@@ -1,6 +1,7 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.connection.QdConnection;
+import com.istonesoft.qdts.connection.QdServiceConnection;
+import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
 import com.istonesoft.qdts.resource.QdNameThreadLocal;
 /**
  * 消费者和提供者共同使用的环境
@@ -8,44 +9,52 @@ import com.istonesoft.qdts.resource.QdNameThreadLocal;
  *
  */
 public abstract class QdContext {
+	//事务组ID
+	protected String qdGroupId;
+	//service层connection
+	protected QdServiceConnection qdConnection;
 	
-	public static void setQdGroupId(String qdGroupId) {
-		QdNameThreadLocal.put("qdGroupId", qdGroupId);
+	protected State state = State.SERVICE;
+
+	public String getQdGroupId() {
+		return qdGroupId;
 	}
-	
-	public static String getQdGroupId() {
-		return (String)QdNameThreadLocal.get("qdGroupId");
+
+	public void setQdGroupId(String qdGroupId) {
+		this.qdGroupId = qdGroupId;
 	}
-	
-	public static void setQdConnection(QdConnection qdConnection) {
-		QdNameThreadLocal.put("qdConnection", qdConnection);
+
+	public QdServiceConnection getQdConnection() {
+		return qdConnection;
 	}
-	
-	public static QdConnection getQdConnection() {
-		return (QdConnection)QdNameThreadLocal.get("qdConnection");
+
+	public void setQdConnection(QdServiceConnection qdConnection) {
+		this.qdConnection = qdConnection;
 	}
-	
-	public static void clear() {
-		QdNameThreadLocal.maps.clear();
+
+	public State getState() {
+		return state;
 	}
-	
-	public static void requiredNewConnection() {
-		QdNameThreadLocal.put("requiredNewConnection", true);
+	public void setState(State state) {
+		this.state = state;
 	}
+
+	public abstract boolean isConsumerContxt();
 	
-	public static void cleanRequiredNewConnection() {
-		QdNameThreadLocal.clear("requiredNewConnection");
-	}
+	public abstract boolean isProviderContxt();
 	
-	public static boolean isRequiredNewConnection() {
-		
-		Object obj = QdNameThreadLocal.get("requiredNewConnection");
-		if (obj == null) {
-			return false;
+	public ProceedingJoinPointResultHandler getProceedingJoinPointResultHandler() {
+		if (getQdConnection() != null) {
+			return getQdConnection();
 		} else {
-			return true;
+			return getTransProcessor();
 		}
-		
+	}
+	
+	public abstract ProceedingJoinPointResultHandler getTransProcessor();
+	
+	public void clear() {
+		QdNameThreadLocal.maps.clear();
 	}
 	
 }

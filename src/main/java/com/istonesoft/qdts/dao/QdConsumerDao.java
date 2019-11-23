@@ -19,7 +19,7 @@ public class QdConsumerDao {
 	protected QdJdbcTemplate jdbcTemplate;
 	
 	public String getGroupIdByMethod(String methodString) throws Exception {
-		String dbGroupId = jdbcTemplate.executeQueryToEntity(ds, "select group_id from t_qd_consumer where method=? and status=? and exception=?", new Object[] {methodString, "PREPARE", "netConnectException"}, new RowHandler<String>(){
+		String dbGroupId = jdbcTemplate.selectOne(ds, "select group_id from t_qd_consumer where method=? and status=? and (exception=? or exception is null)", new Object[] {methodString, "PREPARE", "netConnectException"}, new RowHandler<String>(){
 
 			@Override
 			public String handle(ResultSet rs) {
@@ -36,7 +36,7 @@ public class QdConsumerDao {
 	
 	public void insertConsumerEntity(String groupId, String methodString, String status) throws Exception {
 		
-		jdbcTemplate.executeSql(ds, "insert into t_qd_consumer(group_id,method,status,exception,update_time,invoke_count) values(?,?,?,?,?,?)", new Object[] {
+		jdbcTemplate.executeImmediateCommit(ds, "insert into t_qd_consumer(group_id,method,status,exception,update_time,invoke_count) values(?,?,?,?,?,?)", new Object[] {
 				groupId, methodString,status,null,new Date(),0	
 		});
 		

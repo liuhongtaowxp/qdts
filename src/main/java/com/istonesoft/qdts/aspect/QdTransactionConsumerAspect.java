@@ -8,10 +8,11 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.context.QdContextHolder;
 import com.istonesoft.qdts.dao.QdConsumerDao;
+import com.istonesoft.qdts.handler.ProceedingJoinPointHandler;
 import com.istonesoft.qdts.resource.QdGroup;
 import com.istonesoft.qdts.resource.QdResult;
-import com.istonesoft.qdts.transaction.QdTransProcessor;
 /**
  * QdTransactionConsumer注解拦截，拦截的 是消费方controller层
  * @author issuser
@@ -19,16 +20,18 @@ import com.istonesoft.qdts.transaction.QdTransProcessor;
  */
 @Aspect
 @Component
-public class QdTransactionConsumerAspect extends QdTransProcessor {
+public class QdTransactionConsumerAspect extends ProceedingJoinPointHandler {
 	@Autowired
 	private QdConsumerDao qdConsumerDao;
 	
 	@Around("@annotation(com.istonesoft.qdts.annotation.QdTransactionConsumer)")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 		//设置当前环境为消费者端
-		QdConsumerContext.setQdConsumer();
+		//QdConsumerContext.setQdConsumer();
+		QdConsumerContext ctx = (QdConsumerContext)QdContextHolder.getQdContext(true);
+		
 		//获得当前环境的事务组QdGroup
-		QdGroup qdGroup = QdConsumerContext.getQdGroup();
+		QdGroup qdGroup = ctx.getQdGroup();
 		if (qdGroup == null) {//非定时器调用
 			//新建事务组
 			qdGroup = QdGroup.newQdGroup(joinPoint);
@@ -43,11 +46,12 @@ public class QdTransactionConsumerAspect extends QdTransProcessor {
 			}
 		}
 		//设置当前线程的groupId
-		QdConsumerContext.setQdGroupId(qdGroup.getGroupId());
+		ctx.setQdGroupId(qdGroup.getGroupId());
 		//调用业务逻辑
-		QdResult result = invoke(joinPoint);
+		QdResult result = this.invoke(joinPoint);
 		//清理当前线程的变量
-		QdConsumerContext.clear();
+		//QdConsumerContext.clear();
+		ctx.clear();
 		return result;
 	}
 	

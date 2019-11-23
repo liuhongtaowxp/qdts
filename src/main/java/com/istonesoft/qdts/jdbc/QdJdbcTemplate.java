@@ -1,177 +1,63 @@
 package com.istonesoft.qdts.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.istonesoft.qdts.connection.QdConnection;
-import com.istonesoft.qdts.context.QdContext;
+import com.istonesoft.qdts.connection.QdServiceConnection;
+import com.istonesoft.qdts.context.QdContextHolder;
+import com.istonesoft.qdts.context.State;
 /**
  * jdbc执行模板
  * @author issuser
  *
  */
 @Component
-public class QdJdbcTemplate {
-	/**
-	 * 执行查询
-	 * @param conn
-	 * @param sql
-	 * @param params
-	 * @param handler
-	 * @return
-	 * @throws Exception
-	 */
-	public <T> T executeQueryToEntity(DataSource ds, String sql, Object[] params, RowHandler<T> handler) throws Exception {
-		QdContext.requiredNewConnection();
-		Connection conn = ds.getConnection();
-		PreparedStatement prepareStatement = null;
+public class QdJdbcTemplate extends AbstractJdbcTemplate {
+	
+	private JdbcTemplate JdbcTemplate = new JdbcTemplate();
+	
+	
+	@Override
+	public <T> T selectOne(DataSource ds, String sql, Object[] params,
+			RowHandler<T> handler) throws Exception {
 		try {
-			conn.setReadOnly(true);
-			prepareStatement = conn.prepareStatement(sql);
-			int index = 0;
-			for (Object param : params) {
-				prepareStatement.setObject(++index, param);
-			}
-			ResultSet rs = prepareStatement.executeQuery();
-			while (rs.next()) {
-				return handler.handle(rs);
-			}
-		} catch (SQLException e) {
-			throw e;
+			QdContextHolder.getQdContext().setState(State.NOSERVICE);
+			return JdbcTemplate.selectOne(ds, sql, params, handler);
 		} finally {
-			QdContext.cleanRequiredNewConnection();
-			try {
-				if (prepareStatement != null) {
-					prepareStatement.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-				
-			} catch (SQLException e1) {
-				throw e1;
-			}
-		}
-		return null;
-	}
-	/**
-	 * 执行查询
-	 * @param conn
-	 * @param sql
-	 * @param params
-	 * @param handler
-	 * @return
-	 * @throws Exception
-	 */
-	public <T> List<T> executeQueryToList(DataSource ds, String sql, Object[] params, RowHandler<T> handler) throws Exception {
-		QdContext.requiredNewConnection();
-		Connection conn = ds.getConnection();
-		List<T> list = new ArrayList<T>();
-		PreparedStatement prepareStatement = null;
-		try {
-			conn.setReadOnly(true);
-			prepareStatement = conn.prepareStatement(sql);
-			int index = 0;
-			for (Object param : params) {
-				prepareStatement.setObject(++index, param);
-			}
-			ResultSet rs = prepareStatement.executeQuery();
-			while (rs.next()) {
-				list.add(handler.handle(rs));
-			}
-			return list;
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			QdContext.cleanRequiredNewConnection();
-			try {
-				if (prepareStatement != null) {
-					prepareStatement.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-				
-			} catch (SQLException e1) {
-				throw e1;
-			}
-		}
-	}
-	/**
-	 * 马上commit
-	 * @param conn
-	 * @param sql
-	 * @param params
-	 * @throws Exception
-	 */
-	public void executeSql(DataSource ds, String sql, Object[] params) throws Exception {
-		QdContext.requiredNewConnection();
-		Connection conn = ds.getConnection();
-		PreparedStatement prepareStatement = null;
-		conn.setAutoCommit(false);
-		try {
-			prepareStatement = conn.prepareStatement(sql);
-			int index = 0;
-			for (Object param : params) {
-				prepareStatement.setObject(++index, param);
-			}
-			prepareStatement.execute();
-			conn.commit();
-		} catch (SQLException e) {
-			conn.rollback();
-			throw e;
-		} finally {
-			QdContext.cleanRequiredNewConnection();
-			try {
-				if (prepareStatement != null) {
-					prepareStatement.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-				
-			} catch (SQLException e1) {
-				throw e1;
-			}
+			QdContextHolder.getQdContext().setState(State.SERVICE);
 		}
 		
 	}
-	/**
-	 * 不需要commit，等事务管理commit
-	 * @param conn
-	 * @param sql
-	 * @param params
-	 * @throws Exception
-	 */
-	public void executeSqlNoCommit(QdConnection conn, String sql, Object[] params) throws Exception {
-		Connection pureConnection = conn.getConnection();
-		PreparedStatement prepareStatement = null;
+
+	@Override
+	public <T> List<T> selectList(DataSource ds, String sql, Object[] params,
+			RowHandler<T> handler) throws Exception {
 		try {
-			prepareStatement = pureConnection.prepareStatement(sql);
-			int index = 0;
-			for (Object param : params) {
-				prepareStatement.setObject(++index, param);
-			}
-			prepareStatement.execute();
-		} catch (SQLException e) {
-			throw e;
+			QdContextHolder.getQdContext().setState(State.NOSERVICE);
+			return JdbcTemplate.selectList(ds, sql, params, handler);
 		} finally {
-			try {
-				if (prepareStatement != null) {
-					prepareStatement.close();
-				}
-				
-			} catch (SQLException e1) {
-				throw e1;
-			}
+			QdContextHolder.getQdContext().setState(State.SERVICE);
 		}
 	}
+
+	@Override
+	public void executeImmediateCommit(DataSource ds, String sql,
+			Object[] params) throws Exception {
+		try {
+			QdContextHolder.getQdContext().setState(State.NOSERVICE);
+			JdbcTemplate.executeImmediateCommit(ds, sql, params);
+		} finally {
+			QdContextHolder.getQdContext().setState(State.SERVICE);
+		}
+	}
+
+	@Override
+	public void executeWaitCommit(QdServiceConnection conn, String sql,
+			Object[] params) throws Exception {
+		JdbcTemplate.executeWaitCommit(conn, sql, params);
+	}
+	
 	
 }

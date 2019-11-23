@@ -7,12 +7,12 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import com.istonesoft.qdts.connection.QdConnection;
-import com.istonesoft.qdts.connection.QdConsumerConnection;
-import com.istonesoft.qdts.connection.QdProviderConnection;
-import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.connection.QdConsumerServiceConnection;
+import com.istonesoft.qdts.connection.QdProviderServiceConnection;
+import com.istonesoft.qdts.connection.QdServiceConnection;
 import com.istonesoft.qdts.context.QdContext;
-import com.istonesoft.qdts.context.QdProviderContext;
+import com.istonesoft.qdts.context.QdContextHolder;
+import com.istonesoft.qdts.context.State;
 /**
  * connection切面，需截取connection
  * @author issuser
@@ -34,19 +34,27 @@ public class ConnectionAspect {
 		} catch (Throwable e1) {
 			e1.printStackTrace();
 		}
-		if (QdContext.isRequiredNewConnection()) {//是否需要新的连接
+		//得到当前环境
+		QdContext ctx = QdContextHolder.getQdContext();
+		if (ctx.getState() == State.NOSERVICE) {//不是service层
 			return conn;
-		} else if (QdProviderContext.isProvider()) {//调用者为提供方
-			QdConnection result = new QdProviderConnection(conn);
-			QdContext.setQdConnection(result);
+		} else if (ctx.getState() == State.SERVICE) {//调用者为提供方
+			QdServiceConnection result = initQdServiceConnection(conn, ctx);
 			return result;
-		} else  if (QdConsumerContext.isConsumer()) {//调用者为消费方
-			QdConnection result = new QdConsumerConnection(conn);
-			QdContext.setQdConnection(result);
-			return result;
-		} else {
+		}  else {
 			return conn;
 		}
+	}
+
+	private QdServiceConnection initQdServiceConnection(Connection conn, QdContext ctx) {
+		QdServiceConnection result = null;
+		if (ctx.isConsumerContxt()) {
+			result = new QdConsumerServiceConnection(conn);
+		} else {
+			result = new QdProviderServiceConnection(conn);
+		}
+		ctx.setQdConnection(result);
+		return result;
 	}
 	
 }

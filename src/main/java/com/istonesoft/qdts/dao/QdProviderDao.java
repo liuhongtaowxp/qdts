@@ -1,5 +1,6 @@
 package com.istonesoft.qdts.dao;
 
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -18,27 +19,38 @@ public class QdProviderDao {
 	@Autowired
 	protected QdJdbcTemplate jdbcTemplate;
 	
-	public String getGroupIdByMethod(String methodString) throws Exception {
-		String dbGroupId = jdbcTemplate.executeQueryToEntity(ds, "select group_id from t_qd_consumer where method=? and status=? and exception=?", new Object[] {methodString, "PREPARE", "netConnectException"}, new RowHandler<String>(){
-
-			@Override
+	public int getInvokeCount(String qdGroupId) throws Exception {
+		return jdbcTemplate.selectOne(ds, "select count(1) from t_qd_provider where group_id=?", new String[] {qdGroupId}, new RowHandler<Integer>() {
+			public Integer handle(ResultSet rs) {
+				try {
+					return rs.getInt(1);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+		});
+	}
+	
+	public void insertProviderEntity(String qdGroupId) throws Exception {
+		
+		jdbcTemplate.executeImmediateCommit(ds, "insert into t_qd_provider(group_id,status,exception,update_time,invoke_count) values(?,?,?,?,?)", new Object[] {
+				qdGroupId,"PREPARE",null,new Date(),0	
+		});
+		
+	}
+	
+	public String getSuccessResult(String qdGroupId) throws Exception {
+		return jdbcTemplate.selectOne(ds, "select result from t_qd_provider where group_id=? and status='SUCCESS'", new String[] {qdGroupId}, new RowHandler<String>() {
 			public String handle(ResultSet rs) {
 				try {
 					return rs.getString(1);
 				} catch (SQLException e) {
-					return null;
+					e.printStackTrace();
 				}
+				return null;
 			}
 			
 		});
-		return dbGroupId;
-	}
-	
-	public void insertConsumerEntity(String groupId, String methodString, String status) throws Exception {
-		
-		jdbcTemplate.executeSql(ds, "insert into t_qd_consumer(group_id,method,status,exception,update_time,invoke_count) values(?,?,?,?,?,?)", new Object[] {
-				groupId, methodString,status,null,new Date(),0	
-		});
-		
 	}
 }

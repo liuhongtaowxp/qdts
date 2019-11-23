@@ -1,33 +1,39 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.resource.QdNameThreadLocal;
+import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
 import com.istonesoft.qdts.resource.QdGroup;
+import com.istonesoft.qdts.transaction.ConsumerNoTransProcessor;
 /**
  * 消费者端环境
  * @author issuser
  *
  */
 public class QdConsumerContext extends QdContext {
+	
+	private QdGroup qdGroup;
+	
+	public QdGroup getQdGroup() {
+		return qdGroup;
+	}
 
-	public static void setQdGroup(QdGroup qdGroup) {
-		QdNameThreadLocal.put("qdGroup", qdGroup);
+	public void setQdGroup(QdGroup qdGroup) {
+		this.qdGroup = qdGroup;
 	}
-	
-	public static QdGroup getQdGroup() {
-		return (QdGroup)QdNameThreadLocal.get("qdGroup");
+
+
+	@Override
+	public boolean isConsumerContxt() {
+		return true;
 	}
-	
-	public static void setQdConsumer() {
-		QdNameThreadLocal.put("qdConsumer", true);
+
+	@Override
+	public boolean isProviderContxt() {
+		return false;
 	}
-	
-	public static boolean isConsumer() {
-		Object obj = QdNameThreadLocal.get("qdConsumer");
-		if (obj == null) {
-			return false;
-		} else {
-			return true;
-		}
+
+	@Override
+	public ProceedingJoinPointResultHandler getTransProcessor() {
+		return new ConsumerNoTransProcessor();
 	}
 	
 }

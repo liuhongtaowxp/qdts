@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.istonesoft.qdts.cast.StringCastStrategyImpl;
 import com.istonesoft.qdts.context.QdConsumerContext;
+import com.istonesoft.qdts.context.QdContextHolder;
 /**
  * 方法 
  * @author issuser
@@ -130,7 +131,7 @@ public class QdMethod {
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
-					QdConsumerContext.clear();
+					QdContextHolder.getQdContext().clear();
 				}
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();

@@ -1,6 +1,8 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.resource.QdNameThreadLocal;
+import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
+import com.istonesoft.qdts.transaction.ProviderNoTransProcessor;
+
 /**
  * 提供者端环境
  * @author issuser
@@ -8,17 +10,18 @@ import com.istonesoft.qdts.resource.QdNameThreadLocal;
  */
 public class QdProviderContext extends QdContext {
 
-	public static void setQdProvider() {
-		QdNameThreadLocal.put("qdProvider", true);
+	@Override
+	public boolean isConsumerContxt() {
+		return false;
+	}
+
+	@Override
+	public boolean isProviderContxt() {
+		return true;
 	}
 	
-	public static boolean isProvider() {
-		Object obj = QdNameThreadLocal.get("qdProvider");
-		if (obj == null) {
-			return false;
-		} else {
-			return true;
-		}
+	@Override
+	public ProceedingJoinPointResultHandler getTransProcessor() {
+		return new ProviderNoTransProcessor();
 	}
-	
 }
