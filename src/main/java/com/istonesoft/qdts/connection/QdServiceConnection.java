@@ -1,5 +1,4 @@
 package com.istonesoft.qdts.connection;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -18,12 +17,7 @@ import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-
-import javax.sql.DataSource;
-
 import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
-import com.istonesoft.qdts.jdbc.QdJdbcTemplate;
-import com.istonesoft.qdts.resource.QdResult;
 /**
  * service层Connection
  * @author issuser
@@ -49,17 +43,17 @@ public abstract class QdServiceConnection implements Connection, ProceedingJoinP
 	
 	@Override
 	public void rollback() throws SQLException {
-		//controller,service不同一个事务，有风险,先不要rollback,等controller层修改完结果后rollback
+		//使controller,service处于同一个事务,先不要rollback,等controller层处理完结果后rollback
 	}
 	
 	@Override
 	public void close() throws SQLException {
-		//先不要close,等realcommit,realrollback后close
+		//使controller,service处于同一个事务,先不要close,等controller层处理完结果后commit，然后close
 	}
 	
 	@Override
 	public void commit() throws SQLException {
-		//controller,service同一个事务,先不要commit,等controller层修改完结果后commit
+		//使controller,service处于同一个事务,先不要commit,等controller层处理完结果后commit
 	}
 
 	@Override

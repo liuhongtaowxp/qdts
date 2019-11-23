@@ -29,9 +29,7 @@ public class QdTransactionConsumerAspect {
 	@Around("@annotation(com.istonesoft.qdts.annotation.QdTransactionConsumer)")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 		//设置当前环境为消费者端
-		//QdConsumerContext.setQdConsumer();
 		QdConsumerContext ctx = (QdConsumerContext)QdContextHolder.getQdContext(true);
-		
 		//获得当前环境的事务组QdGroup
 		QdGroup qdGroup = ctx.getQdGroup();
 		if (qdGroup == null) {//非定时器调用

@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Import(QdConfig.class)
+/**
+ * 开启功能注解
+ *
+ */
 public @interface EnableQdts {
 
 }
