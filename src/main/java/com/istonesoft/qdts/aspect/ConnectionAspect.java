@@ -36,13 +36,14 @@ public class ConnectionAspect {
 		}
 		//得到当前环境
 		QdContext ctx = QdContextHolder.getQdContext();
+		if (ctx == null) {
+			return conn;
+		}
 		if (ctx.getState() == State.NOSERVICE) {//不是service层
 			return conn;
-		} else if (ctx.getState() == State.SERVICE) {//调用者为提供方
+		} else {
 			QdServiceConnection result = initQdServiceConnection(conn, ctx);
 			return result;
-		}  else {
-			return conn;
 		}
 	}
 
