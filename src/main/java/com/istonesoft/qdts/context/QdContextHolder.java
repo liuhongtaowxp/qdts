@@ -1,27 +1,27 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.resource.QdNameThreadLocal;
+import com.istonesoft.qdts.resource.QdThreadLocal;
 
 public class QdContextHolder {
 
 	public static QdContext getQdContext(boolean isConsumerContext) {
-		Object result = QdNameThreadLocal.get("context");
+		QdContext result = QdThreadLocal.get();
 		if (result != null) {
-			return (QdContext)result;
+			return result;
 		} else {
 			if (isConsumerContext) {
-				QdNameThreadLocal.put("context", new QdConsumerContext());
+				QdThreadLocal.put(new QdConsumerContext());
 			} else {
-				QdNameThreadLocal.put("context", new QdProviderContext());
+				QdThreadLocal.put(new QdProviderContext());
 			}
-			return (QdContext)QdNameThreadLocal.get("context");
+			return QdThreadLocal.get();
 		}
 	}
 	
 	public static QdContext getQdContext() {
-		Object result = QdNameThreadLocal.get("context");
+		QdContext result = QdThreadLocal.get();
 		if (result != null) {
-			return (QdContext)result;
+			return result;
 		}
 		return null;
 	}

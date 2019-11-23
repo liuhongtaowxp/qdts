@@ -2,7 +2,7 @@ package com.istonesoft.qdts.context;
 
 import com.istonesoft.qdts.connection.QdServiceConnection;
 import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
-import com.istonesoft.qdts.resource.QdNameThreadLocal;
+import com.istonesoft.qdts.resource.QdThreadLocal;
 /**
  * 消费者和提供者共同使用的环境
  * @author issuser
@@ -54,7 +54,7 @@ public abstract class QdContext {
 	public abstract ProceedingJoinPointResultHandler getTransProcessor();
 	
 	public void clear() {
-		QdNameThreadLocal.maps.clear();
+		QdThreadLocal.clear();
 	}
 	
 }
