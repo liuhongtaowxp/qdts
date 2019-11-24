@@ -15,6 +15,8 @@ public abstract class QdContext {
 	protected QdServiceConnection qdConnection;
 	//controller层所处的事务状态
 	protected State state = State.SERVICE;
+	//非service层结果处理
+	protected ProceedingJoinPointResultHandler proceedingJoinPointResultHandler;
 
 	public String getQdGroupId() {
 		return qdGroupId;
@@ -47,11 +49,9 @@ public abstract class QdContext {
 		if (getQdConnection() != null) {
 			return getQdConnection();
 		} else {
-			return getTransProcessor();
+			return proceedingJoinPointResultHandler;
 		}
 	}
-	
-	public abstract ProceedingJoinPointResultHandler getTransProcessor();
 	
 	public void clear() {
 		QdThreadLocal.clear();

@@ -1,6 +1,5 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
 import com.istonesoft.qdts.transaction.ProviderNoTransProcessor;
 
 /**
@@ -9,6 +8,10 @@ import com.istonesoft.qdts.transaction.ProviderNoTransProcessor;
  *
  */
 public class QdProviderContext extends QdContext {
+	
+	public QdProviderContext() {
+		proceedingJoinPointResultHandler = new ProviderNoTransProcessor();
+	}
 
 	@Override
 	public boolean isConsumerContxt() {
@@ -20,8 +23,4 @@ public class QdProviderContext extends QdContext {
 		return true;
 	}
 	
-	@Override
-	public ProceedingJoinPointResultHandler getTransProcessor() {
-		return new ProviderNoTransProcessor();
-	}
 }

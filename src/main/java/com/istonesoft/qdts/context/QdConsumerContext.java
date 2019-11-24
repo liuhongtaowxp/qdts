@@ -1,6 +1,5 @@
 package com.istonesoft.qdts.context;
 
-import com.istonesoft.qdts.handler.ProceedingJoinPointResultHandler;
 import com.istonesoft.qdts.resource.QdGroup;
 import com.istonesoft.qdts.transaction.ConsumerNoTransProcessor;
 /**
@@ -12,6 +11,10 @@ public class QdConsumerContext extends QdContext {
 	
 	private QdGroup qdGroup;
 	
+	public QdConsumerContext() {
+		proceedingJoinPointResultHandler = new ConsumerNoTransProcessor();
+	}
+	
 	public QdGroup getQdGroup() {
 		return qdGroup;
 	}
@@ -19,7 +22,6 @@ public class QdConsumerContext extends QdContext {
 	public void setQdGroup(QdGroup qdGroup) {
 		this.qdGroup = qdGroup;
 	}
-
 
 	@Override
 	public boolean isConsumerContxt() {
@@ -31,9 +33,4 @@ public class QdConsumerContext extends QdContext {
 		return false;
 	}
 
-	@Override
-	public ProceedingJoinPointResultHandler getTransProcessor() {
-		return new ConsumerNoTransProcessor();
-	}
-	
 }
