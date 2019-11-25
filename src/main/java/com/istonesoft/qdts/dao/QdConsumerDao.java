@@ -71,4 +71,5 @@ public class QdConsumerDao {
 		});
 		return list;
 	}
+	
 }

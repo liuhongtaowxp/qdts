@@ -55,7 +55,6 @@ public class ScheduleRunner implements ApplicationContextAware {
 		((QdConsumerContext)QdContextHolder.getQdContext(true)).setQdGroup(group);
 	}
 
-	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 		
