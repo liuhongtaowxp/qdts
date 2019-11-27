@@ -15,6 +15,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface QdTransactionConsumer {
 
-    public String desc() default "consumer-desc";
+    public String desc() default "consumer-desc"; 
+    
+    
 
 }
